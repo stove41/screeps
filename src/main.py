@@ -16,6 +16,8 @@ __pragma__('noalias', 'set')
 __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
+roles = ["harvester"]
+role_counts = {"harvester": 15}
 
 def main():
     """
@@ -31,19 +33,24 @@ def main():
     for name in Object.keys(Game.spawns):
         spawn = Game.spawns[name]
         if not spawn.spawning:
-            # Get the number of our creeps in the room.
-            num_creeps = _.sum(Game.creeps, lambda c: c.pos.roomName == spawn.pos.roomName)
-            # If there are no creeps, spawn a creep once energy is at 250 or more
-            if num_creeps < 0 and spawn.room.energyAvailable >= 250:
-                spawn.spawnCreep([WORK, CARRY, MOVE, MOVE])
-            # If there are less than 15 creeps but at least one, wait until all spawns and extensions are full
-            # before spawning.
-            elif num_creeps < 15 and spawn.room.energyAvailable >= spawn.room.energyCapacityAvailable:
-                # If we have more energy, spawn a bigger creep.
-                if spawn.room.energyCapacityAvailable >= 350:
-                    spawn.spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE, MOVE])
-                else:
-                    spawn.spawnCreep([WORK, CARRY, MOVE, MOVE])
+            for role in roles:
+                # Get the number of our creeps in the room.
+                num_creeps = _.sum(Game.creeps, lambda c: c.pos.roomName == spawn.pos.roomName and c.memory.role == role)
+                # console.log(JSON.stringify(num_creeps))
+                # If there are no creeps, spawn a creep once energy is at 250 or more
+                if num_creeps < 0 and spawn.room.energyAvailable >= 250:
+                    spawn.spawnCreep([WORK, CARRY, MOVE, MOVE], "{}-{}".format(role, Game.time),
+                                     {'memory': {'role': role}})
+                # If there are less than role_count creeps but at least one, wait until all spawns and extensions are full
+                # before spawning.
+                elif num_creeps < role_counts[role] and spawn.room.energyAvailable >= spawn.room.energyCapacityAvailable:
+                    # If we have more energy, spawn a bigger creep.
+                    if spawn.room.energyCapacityAvailable >= 350:
+                        spawn.spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE, MOVE], "{}-{}".format(role, Game.time),
+                                         {'memory': {'role': role}})
+                    else:
+                        spawn.spawnCreep([WORK, CARRY, MOVE, MOVE], "{}-{}".format(role, Game.time),
+                                         {'memory': {'role': role}})
 
 
 module.exports.loop = main
