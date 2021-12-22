@@ -19,9 +19,9 @@ __pragma__('noalias', 'update')
 
 roles = ["harvester", "builder"]
 role_counts = {"harvester": 15,
-               "builder": 3}
+               "builder": 1}
 role_bodies = {"harvester": [WORK, CARRY, MOVE, MOVE],
-               "builder": [WORK, WORK, MOVE, MOVE]}
+               "builder": [WORK, CARRY, MOVE, MOVE]}
 
 
 def main():

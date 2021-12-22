@@ -47,11 +47,17 @@ def run_harvester(creep):
             target = Game.getObjectById(creep.memory.target)
         else:
             # Get a random new target.
-            target = _(creep.room.find(FIND_STRUCTURES)) \
-                .filter(lambda s: ((s.structureType == STRUCTURE_SPAWN or s.structureType == STRUCTURE_EXTENSION)
-                                   and s.energy < s.energyCapacity) or s.structureType == STRUCTURE_CONTROLLER) \
-                .sample()
-            creep.memory.target = target.id
+            try:
+                target = _(creep.room.find(FIND_STRUCTURES)) \
+                    .filter(lambda s: ((s.structureType == STRUCTURE_SPAWN or s.structureType == STRUCTURE_EXTENSION)
+                                       and s.energy < s.energyCapacity)) \
+                    .sample()
+                creep.memory.target = target.id
+            except:
+                target = _(creep.room.find(FIND_STRUCTURES)) \
+                    .filter(lambda s: (s.structureType == STRUCTURE_CONTROLLER)).sample()
+                creep.memory.target = target.id
+
 
         # If we are targeting a spawn or extension, we need to be directly next to it - otherwise, we can be 3 away.
         if target.energyCapacity:
