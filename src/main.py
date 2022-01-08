@@ -1,5 +1,5 @@
-import harvester
-import builder
+from harvester import Harvester
+from builder import Builder
 # defs is a package which claims to export all constants and some JavaScript objects, but in reality does
 #  nothing. This is useful mainly when using an editor like PyCharm, so that it 'knows' that things like Object, Creep,
 #  Game, etc. do exist.
@@ -18,10 +18,15 @@ __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
 roles = ["harvester", "builder"]
-role_counts = {"harvester": 15,
-               "builder": 1}
+role_counts = {"harvester": 8,
+               "builder": 2,
+               "defender": 0}
 role_bodies = {"harvester": [WORK, CARRY, MOVE, MOVE],
-               "builder": [WORK, CARRY, MOVE, MOVE]}
+               "builder": [WORK, CARRY, MOVE, MOVE],
+               "defender": []}
+high_nrg_bodies = {"harvester": [WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
+                   "builder": [WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
+                   "defender": []}
 
 
 def main():
@@ -32,9 +37,9 @@ def main():
     for name in Object.keys(Game.creeps):
         creep = Game.creeps[name]
         if creep.memory.role == "harvester":
-            harvester.run_harvester(creep)
+            Harvester(creep).run_harvester()
         elif creep.memory.role == "builder":
-            builder.run_builder(creep)
+            Builder(creep).run_builder()
 
     # Run each spawn
     for name in Object.keys(Game.spawns):
@@ -46,19 +51,17 @@ def main():
                                    lambda c: c.pos.roomName == spawn.pos.roomName and c.memory.role == role)
                 # If there are no creeps, spawn a creep once energy is at 250 or more
                 if num_creeps <= 0 and spawn.room.energyAvailable >= 250:
-                    console.log("here")
                     spawn.spawnCreep(role_bodies[role], "{}-{}".format(role, Game.time),
                                      {'memory': {'role': role}})
-                # If there are less than role_count creeps but at least one, wait until all spawns and extensions are full
-                # before spawning.
-                elif num_creeps < role_counts[role] and spawn.room.energyAvailable >= spawn.room.energyCapacityAvailable:
-                    # If we have more energy, spawn a bigger creep.
-                    if spawn.room.energyCapacityAvailable >= 350:
-                        spawn.spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE, MOVE], "{}-{}".format(role, Game.time),
+                # If there are less than role_count creeps but at least one,
+                # wait until 350 nrg for bigger body.
+                elif num_creeps < role_counts[role] and spawn.room.energyAvailable >= 350:
+                    spawn.spawnCreep(high_nrg_bodies[role], "{}-{}".format(role, Game.time),
                                          {'memory': {'role': role}})
-                    else:
-                        spawn.spawnCreep(role_bodies[role], "{}-{}".format(role, Game.time),
-                                         {'memory': {'role': role}})
+                # Else spawn a small creep
+                elif num_creeps < role_counts[role] and spawn.room.energyAvailable >= 250:
+                    spawn.spawnCreep(role_bodies[role], "{}-{}".format(role, Game.time),
+                                     {'memory': {'role': role}})
 
 
 module.exports.loop = main
