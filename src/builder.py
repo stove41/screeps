@@ -10,37 +10,25 @@ __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
 
-def run_builder(creep):
-    if creep.memory.building and creep.store[RESOURCE_ENERGY] == 0:
-        creep.memory.building = False
-        creep.say('collect')
+class Builder():
+    def __init__(self, creep):
+        self.creep = creep
 
-    if not creep.memory.building and creep.store.getFreeCapacity() == 0:
-        creep.memory.building = True
-        creep.say('build')
+    def run_builder(self):
+        if self.creep.memory.building and self.creep.store[RESOURCE_ENERGY] == 0:
+            self.creep.memory.building = False
+            self.creep.say('collect')
 
-    if creep.memory.building:
-        nearest = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
-        if creep.build(nearest) == ERR_NOT_IN_RANGE:
-            creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffffff'}})
-    else:
-        # console.log("else clause")
-        # creep.memory.building = True
-        nearest = creep.pos.findClosestByRange(FIND_MY_SPAWNS)
+        if not self.creep.memory.building and self.creep.store.getFreeCapacity() == 0:
+            self.creep.memory.building = True
+            self.creep.say('build')
 
-           # _.filter(creep.room.find(FIND_STRUCTURES),
-           #          lambda x: (x.structureType == STRUCTURE_CONTAINER or
-           #                     x.structureType == STRUCTURE_STORAGE or
-           #                     x.structureType == STRUCTURE_SPAWN) and
-           #                    x.store.getUsedCapacity() > 0))
-        #  print(creep, "builder", nearest)
-        try:
-            result = creep.withdraw(nearest, RESOURCE_ENERGY)
-        except:
-            creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffaa00'}})
-
-
-        # if creep.withdraw(nearest, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE:
-        #    creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffaa00'}})
-        #    result = creep.withdraw(nearest, RESOURCE_ENERGY)
-        #    console.log(JSON.stringify(result))
+        if self.creep.memory.building:
+            nearest = self.creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
+            if self.creep.build(nearest) == ERR_NOT_IN_RANGE:
+                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffffff'}})
+        else:
+            nearest = self.creep.pos.findClosestByRange(FIND_MY_SPAWNS)
+            if self.creep.withdraw(nearest, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE:
+                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffaa00'}})
+                result = self.creep.withdraw(nearest, RESOURCE_ENERGY)
