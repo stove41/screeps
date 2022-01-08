@@ -26,9 +26,9 @@ class Builder():
         if self.creep.memory.building:
             nearest = self.creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES)
             if self.creep.build(nearest) == ERR_NOT_IN_RANGE:
-                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffffff'}})
+                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ff80ed'}})
         else:
             nearest = self.creep.pos.findClosestByRange(FIND_MY_SPAWNS)
             if self.creep.withdraw(nearest, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE:
-                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ffaa00'}})
+                self.creep.moveTo(nearest, {"visualizePathStyle": {"stroke": '#ff80ed'}})
                 result = self.creep.withdraw(nearest, RESOURCE_ENERGY)
