@@ -1,5 +1,3 @@
-#import json.decoder
-
 from defs import *
 
 __pragma__('noalias', 'name')
@@ -74,34 +72,6 @@ class Harvester:
                         target = _(self.creep.room.find(FIND_STRUCTURES)) \
                             .filter(lambda s: (s.structureType == STRUCTURE_CONTROLLER)).sample()
                         self.creep.memory.target = target.id
-
-                '''try:
-                    creep.memory.target = target.id
-                except TypeError as e:
-                    console.log("#1")
-                    console.log(JSON.stringify(e))
-                    target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,
-                                                          {"filter": lambda s:
-                                                           (s.structureType == STRUCTURE_CONTROLLER)})
-                    try:
-    
-                        creep.memory.target = target.id
-                    except TypeError as error:
-                        console.log("#2")
-                        console.log(JSON.stringify(error))
-                        target = _(creep.room.find(FIND_STRUCTURES)) \
-                            .filter(lambda s: (s.structureType == STRUCTURE_CONTROLLER)).sample()
-                        creep.memory.target = target.id
-                    if target is not False:
-                        creep.memory.target = target.id
-                    else:
-                        target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,
-                                                              {"filter": lambda s:
-                                                               (s.structureType == STRUCTURE_CONTROLLER)})
-                        if target is not False:
-                            creep.memory.target = target.id
-                except TypeError as err:
-                    console.log(JSON.stringify(err))'''
 
             # If we are targeting a spawn or extension, we need to be directly next to it - otherwise, we can be 3 away.
             if target.energyCapacity:
