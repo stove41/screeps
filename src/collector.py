@@ -10,14 +10,14 @@ __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
 
-class Harvester:
+class Collector:
     def __init__(self, creep):
         self.creep = creep
 
     def get_source_terrain(self):
         return
 
-    def run_harvester(self):
+    def run_collector(self):
         """
         Runs a creep as a generic harvester.
         :param creep: The creep to run
@@ -33,20 +33,30 @@ class Harvester:
             del self.creep.memory.target
 
         if self.creep.memory.filling:
-            # If we have a saved source, use it
+            # If we have a source use it
             if self.creep.memory.source:
                 source = Game.getObjectById(self.creep.memory.source)
+                if not source:
+                    del self.creep.memory.source
             else:
-                # Get a random new source and save it
-                source = _(self.creep.room.find(FIND_SOURCES)).sample()
+                # Get location of closest dropped resources.
+                source = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
+                                                           {"filter": lambda s:
+                                                            s.structureType == STRUCTURE_CONTAINER})
+                '''TODO Make it so collectors find the largest amount of dropped resources first.'''
                 if source:
                     self.creep.memory.source = source.id
+                else:
+                    source = self.creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+
+                    if source:
+                        self.creep.memory.source = source.id
 
             # If we're near the source, harvest it - otherwise, move to it.
             if self.creep.pos.isNearTo(source):
-                result = self.creep.harvest(source)
-                if result != OK:
-                    print("[{}] Unknown result from creep.harvest({}): {}".format(self.creep.name, source, result))
+                result = self.creep.withdraw(source, RESOURCE_ENERGY)
+                if result != 0:
+                    self.creep.pickup(source)
             else:
                 self.creep.moveTo(source)
         else:
@@ -67,10 +77,6 @@ class Harvester:
                                                                {"filter": lambda s:
                                                                 (s.structureType == STRUCTURE_CONTROLLER)})
                     if target:
-                        self.creep.memory.target = target.id
-                    else:
-                        target = _(self.creep.room.find(FIND_STRUCTURES)) \
-                            .filter(lambda s: (s.structureType == STRUCTURE_CONTROLLER)).sample()
                         self.creep.memory.target = target.id
 
             # If we are targeting a spawn or extension, we need to be directly next to it - otherwise, we can be 3 away.
