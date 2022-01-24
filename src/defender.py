@@ -17,24 +17,22 @@ class Defender:
 
     def run_defender(self):
         if self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) == 0:
-            console.log("1")
             self.creep.memory.attacking = False
             del self.creep.memory.target
-            home = self.creep.room.find(FIND_MY_SPAWNS)
+            home = self.creep.pos.findClosestByPath(FIND_MY_SPAWNS)
             self.creep.memory.home = home.id
         elif self.creep.memory.attacking and self.creep.memory.target:
-            console.log("2")
             target = Game.getObjectById(self.creep.memory.target)
             if self.creep.attack(target) == ERR_NOT_IN_RANGE:
                 self.creep.moveTo(target, {"visualizePathStyle": {"stroke": '#7bf600'}})
         elif not self.creep.memory.attacking and self.creep.memory.home:
-            console.log("3")
-            home = Game.getObjectById(self.creep.memory.target)
+            home = Game.getObjectById(self.creep.memory.home)
+            if self.creep.pos.isNearTo(home):
+                del self.creep.memory.home
             self.creep.moveTo(home, {"visualizePathStyle": {"stroke": '#7bf600'}})
         else:
-            console.log("4")
-            if len(self.creep.room.find(FIND_HOSTILE_CREEPS)) > 0:
-                target = self.creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+            if not self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) > 0:
+                target = self.creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
                 self.creep.memory.target = target.id
                 self.creep.memory.attacking = True
 
