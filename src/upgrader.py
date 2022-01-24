@@ -14,10 +14,7 @@ class Upgrader:
     def __init__(self, creep):
         self.creep = creep
 
-    def get_source_terrain(self):
-        return
-
-    def run_collector(self):
+    def run_upgrader(self):
         """
         Runs a creep as a generic harvester.
         :param creep: The creep to run
