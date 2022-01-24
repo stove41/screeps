@@ -42,6 +42,7 @@ class RoomObject:
         """
         WARNING: This constructor is purely for type completion, and does not exist in the game.
         """
+        self.id = None
         self.effects = effects
         self.pos = pos
         self.room = room
