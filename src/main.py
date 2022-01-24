@@ -2,6 +2,8 @@ from collector import Collector
 from builder import Builder
 from defender import Defender
 from harvester_new import HarvesterNew
+from upgrader import Upgrader
+from upgrader import Upgrader
 # defs is a package which claims to export all constants and some JavaScript objects, but in reality does
 #  nothing. This is useful mainly when using an editor like PyCharm, so that it 'knows' that things like Object, Creep,
 #  Game, etc. do exist.
@@ -19,11 +21,12 @@ __pragma__('noalias', 'set')
 __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
-roles = ["collector", "builder", "defender", "harvester"]
-role_counts = {"collector": 1,
+roles = ["collector", "builder", "defender", "harvester", "upgrader"]
+role_counts = {"collector": 4,
                "builder": 1,
                "defender": 1,
-               "harvester": 1}
+               "harvester": 1,
+               "upgrader": 1}
 
 
 class CreepSpawner:
@@ -50,36 +53,47 @@ class CreepSpawner:
             cost += cost_dict[part]
         return cost
 
-    def build_body(self):
-        if self.role == "harvester":
-            body = [WORK, WORK, MOVE]
-            cost = self.get_part_cost(body)
-            while cost <= self.spawn.room.energyAvailable and len(body) != 6:
-                if self.spawn.room.energyAvailable - cost < 100:
-                    return body
-                else:
-                    body.append(WORK)
-                    cost = self.get_part_cost(body)
-            return body
-        elif self.role == "defender":
-            body = [TOUGH, MOVE, ATTACK, MOVE, ATTACK, MOVE]
-            return body
-        else:
-            body = [WORK, CARRY, MOVE]
-            cost = self.get_part_cost(body)
-            while cost <= self.spawn.room.energyAvailable:
-                if self.spawn.room.energyAvailable - cost < 200:
-                    return body
-                else:
-                    body.extend([WORK, CARRY, MOVE])
-                    cost = self.get_part_cost(body)
-            return body
+    def build_defender(self):
+        body = [TOUGH, MOVE, ATTACK, MOVE, ATTACK, MOVE]
+        return body
+
+    def build_builder(self):
+        body = [WORK, CARRY, MOVE, MOVE]
+        cost = self.get_part_cost(body)
+        while cost <= self.spawn.room.energyAvailable:
+            if self.spawn.room.energyAvailable - cost < 300:
+                return body
+            else:
+                body.extend([WORK, WORK, MOVE, MOVE])
+                cost = self.get_part_cost(body)
+        return body
+
+    def build_utility(self):
+        body = [WORK, CARRY, MOVE, MOVE]
+        cost = self.get_part_cost(body)
+        while cost <= self.spawn.room.energyAvailable:
+            if self.spawn.room.energyAvailable - cost < 250:
+                return body
+            else:
+                body.extend([WORK, CARRY, MOVE, MOVE])
+                cost = self.get_part_cost(body)
+        return body
+
+    def build_harvester(self):
+        body = [WORK, WORK, MOVE]
+        cost = self.get_part_cost(body)
+        while cost <= self.spawn.room.energyAvailable and len(body) != 6:
+            if self.spawn.room.energyAvailable - cost < 100:
+                return body
+            else:
+                body.append(WORK)
+                cost = self.get_part_cost(body)
+        return body
 
     def spawn_creeps(self, body):
         if self.num_creeps < role_counts[self.role]:
             result = self.spawn.spawnCreep(body, "{}-{}".format(self.role, Game.time),
                                            {'memory': {'role': self.role}})
-            console.log(JSON.stringify(result))
 
     def spawn_harvesters(self, body):
         if self.num_creeps < role_counts[self.role]:
@@ -103,6 +117,8 @@ def main():
             Defender(creep).run_defender()
         elif creep.memory.role == "harvester":
             HarvesterNew(creep).run_harvester()
+        elif creep.memory.role == "upgrader":
+            Upgrader(creep).run_upgrader()
 
     # Run each spawn
     for name in Object.keys(Game.spawns):
@@ -117,17 +133,21 @@ def main():
                 # Instantiate spawner object.
                 spawner = CreepSpawner(spawn, num_creeps, role, sources)
                 if role == "harvester":
-                    console.log(JSON.stringify(role))
-                    body = spawner.build_body()
-                    console.log(JSON.stringify(spawn.room.energyAvailable))
-                    console.log(JSON.stringify(body))
-                    spawner.spawn_harvesters(body)
-                else:
-                    console.log(JSON.stringify(role))
-                    body = spawner.build_body()
-                    console.log(JSON.stringify(spawn.room.energyAvailable))
-                    console.log(JSON.stringify(body))
-                    spawner.spawn_creeps(body)
+                    body = spawner.build_harvester()
+                    if spawn.room.energyAvailable > 250:
+                        spawner.spawn_harvesters(body)
+                elif role == "defender":
+                    body = spawner.build_defender()
+                    if spawn.room.energyAvailable > 320:
+                        spawner.spawn_creeps(body)
+                elif role == "collector" or role == "upgrader":
+                    body = spawner.build_utility()
+                    if spawn.room.energyAvailable > 250:
+                        spawner.spawn_creeps(body)
+                elif role == "builder":
+                    body = spawner.build_builder()
+                    if spawn.room.energyAvailable > 250:
+                        spawner.spawn_creeps(body)
 
 
 module.exports.loop = main
