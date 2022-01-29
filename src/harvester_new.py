@@ -22,29 +22,29 @@ class HarvesterNew:
         Runs a creep as a generic harvester.
         :param creep: The creep to run
         """
-        # Find all sources.
-        # Determine if a harvester is at the source.
-        # If not, go to closest.
+        # Set source from memory as source
         if self.creep.memory.source:
             source = Game.getObjectById(self.creep.memory.source)
-        # else:
-        #    source = self.creep.pos.findClosestByRange(FIND_SOURCES)
-        #    if source:
-        #        self.creep.memory.source = source.id
-
-        # If we're near the source, harvest it - otherwise, move to it.
+        # If we're near the source, check for a container.
         if self.creep.pos.isNearTo(source):
             cont = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
                                                      {"filter": lambda s:
                                                       s.structureType == STRUCTURE_CONTAINER})
             if cont:
-                if self.creep.pos.isEqualTo(cont):
+                # If container is not within 3 spaces harvest source.
+                if not self.creep.pos.isNearTo(cont, 3):
                     result = self.creep.harvest(source)
                 else:
-                    res = self.creep.moveTo(cont)
-                    console.log(JSON.stringify(res))
+                    # If creep is on container, harvest source.
+                    if self.creep.pos.isEqualTo(cont):
+                        result = self.creep.harvest(source)
+                    else:
+                        # Else move to container
+                        self.creep.moveTo(cont)
             else:
+                # If container doesnt exist, harvest source.
                 result = self.creep.harvest(source)
+        # If not near source move to it.
         else:
             self.creep.moveTo(source)
 
