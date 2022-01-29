@@ -37,15 +37,14 @@ class Collector:
                     del self.creep.memory.source
             else:
                 # Get location of closest dropped resources.
-                source = self.creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
-
+                source = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
+                                                           {"filter": lambda s:
+                                                            s.structureType == STRUCTURE_CONTAINER})
                 '''TODO Make it so collectors find the largest amount of dropped resources first.'''
                 if source:
                     self.creep.memory.source = source.id
                 else:
-                    source = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
-                                                               {"filter": lambda s:
-                                                                s.structureType == STRUCTURE_CONTAINER})
+                    source = self.creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
 
                     if source:
                         self.creep.memory.source = source.id
@@ -70,35 +69,19 @@ class Collector:
                                                              and s.energy < s.energyCapacity)})
                 if target:
                     self.creep.memory.target = target.id
-                # else:
-                #    target = self.creep.pos.findClosestByRange(FIND_MY_STRUCTURES,
-                #                                               {"filter": lambda s:
-                #                                                (s.structureType == STRUCTURE_CONTROLLER)})
-                #    if target:
-                #        self.creep.memory.target = target.id
-
-            # If we are targeting a spawn or extension, we need to be directly next to it - otherwise, we can be 3 away.
-            # if target.energyCapacity:
+            # We need to be directly next to spawn or extension to transfer nrg.
             is_close = self.creep.pos.isNearTo(target)
-            # else:
-            #    is_close = self.creep.pos.inRangeTo(target, 3)
-
             if is_close:
-                # If we are targeting a spawn or extension, transfer energy. Otherwise, use upgradeController on it.
+                # transfer energy
                 if target.energyCapacity:
                     result = self.creep.transfer(target, RESOURCE_ENERGY)
                     if result == OK or result == ERR_FULL:
                         del self.creep.memory.target
                     else:
-                        print("[{}] Unknown result from creep.transfer({}, {}): {}".format(
-                            self.creep.name, target, RESOURCE_ENERGY, result))
-                # else:
-                #    result = self.creep.upgradeController(target)
-                #    if result != OK:
-                #        print("[{}] Unknown result from creep.upgradeController({}): {}".format(
-                #            self.creep.name, target, result))
-                    # Let the creeps get a little closer than required to the controller, to make room for other creeps.
-                #    if not self.creep.pos.inRangeTo(target, 2):
-                #        self.creep.moveTo(target)
+                        console.log(JSON.stringify(result))
             else:
-                self.creep.moveTo(target)
+                # If all nrg capacity is full move to out of the way spot.
+                if self.creep.room.energyAvailable == self.creep.room.energyCapacityAvailable:
+                    self.creep.moveTo(22, 6)
+                else:
+                    self.creep.moveTo(target)
