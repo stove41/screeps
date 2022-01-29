@@ -78,7 +78,7 @@ class Upgrader:
                     print("[{}] Unknown result from creep.upgradeController({}): {}".format(
                         self.creep.name, target, result))
                 # Let the creeps get a little closer than required to the controller, to make room for other creeps.
-                if not self.creep.pos.inRangeTo(target, 2):
-                    self.creep.moveTo(target)
+                # if not self.creep.pos.inRangeTo(target, 2):
+                #    self.creep.moveTo(target)
             else:
                 self.creep.moveTo(target)
