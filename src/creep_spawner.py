@@ -63,7 +63,7 @@ class CreepSpawner:
         body = [WORK, CARRY, MOVE, MOVE]
         cost = self.get_part_cost(body)
         while cost <= self.spawn.room.energyAvailable:
-            if self.spawn.room.energyAvailable - cost < 300:
+            if self.spawn.room.energyAvailable - cost < 250:
                 return body
             else:
                 body.extend([WORK, CARRY, MOVE, MOVE])
