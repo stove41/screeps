@@ -4,6 +4,8 @@ from defender import Defender
 from harvester_new import HarvesterNew
 from upgrader import Upgrader
 from creep_spawner import CreepSpawner
+import time
+from tower import Tower
 # defs is a package which claims to export all constants and some JavaScript objects, but in reality does
 #  nothing. This is useful mainly when using an editor like PyCharm, so that it 'knows' that things like Object, Creep,
 #  Game, etc. do exist.
@@ -24,10 +26,10 @@ __pragma__('noalias', 'update')
 roles = ["collector", "builder", "defender", "harvester", "upgrader"]
 role_counts = {"collector": 2,
                "builder": 1,
-               "defender": 0,
+               "defender": 1,
                "harvester": 2,
                "upgrader": 1}
-last_idx = 0
+last_idx = 1
 
 
 def main():
@@ -48,6 +50,13 @@ def main():
             HarvesterNew(creep).run_harvester()
         elif creep.memory.role == "upgrader":
             Upgrader(creep).run_upgrader()
+
+    # Run each tower
+    towers = _.filter(Game.structures,
+                      lambda s: s.structureType == STRUCTURE_TOWER)
+    for name in towers:
+        tower = Game.structures[name.id]
+        Tower(tower).run_tower()
 
     # Run each spawn
     for name in Object.keys(Game.spawns):
