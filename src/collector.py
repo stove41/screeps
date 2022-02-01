@@ -1,4 +1,5 @@
 from defs import *
+from base_creep import BaseCreep
 
 __pragma__('noalias', 'name')
 __pragma__('noalias', 'undefined')
@@ -10,8 +11,9 @@ __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
 
-class Collector:
+class Collector(BaseCreep):
     def __init__(self, creep):
+        BaseCreep.__init__(self)
         self.creep = creep
 
     def run_collector(self):
@@ -19,16 +21,8 @@ class Collector:
         Runs a creep as a generic harvester.
         :param creep: The creep to run
         """
-
-        # If we're full, stop filling up and remove the saved source
-        if self.creep.memory.filling and self.creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0:
-            self.creep.memory.filling = False
-            del self.creep.memory.source
-        # If we're empty, start filling again and remove the saved target
-        elif not self.creep.memory.filling and self.creep.carry.energy <= 0:
-            self.creep.memory.filling = True
-            del self.creep.memory.target
-
+        # set the filling variable in memory.
+        self.set_filling()
         if self.creep.memory.filling:
             # If we have a source use it
             if self.creep.memory.source:
@@ -37,23 +31,20 @@ class Collector:
                     del self.creep.memory.source
             else:
                 # Get location of closest dropped resources.
-                source = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
-                                                           {"filter": lambda s:
-                                                            s.structureType == STRUCTURE_CONTAINER})
-                '''TODO Make it so collectors find the largest amount of dropped resources first.'''
+                source = self.get_source("container")
                 if source:
                     self.creep.memory.source = source.id
                 else:
-                    source = self.creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
-
+                    source = self.get_source("dropped")
                     if source:
                         self.creep.memory.source = source.id
 
             # If we're near the source, harvest it - otherwise, move to it.
             if self.creep.pos.isNearTo(source):
-                result = self.creep.withdraw(source, RESOURCE_ENERGY)
-                if result != 0:
-                    self.creep.pickup(source)
+                self.collect_source(source)
+                # result = self.creep.withdraw(source, RESOURCE_ENERGY)
+                # if result != 0:
+                #    self.creep.pickup(source)
             else:
                 self.creep.moveTo(source)
         else:
@@ -61,12 +52,7 @@ class Collector:
             if self.creep.memory.target:
                 target = Game.getObjectById(self.creep.memory.target)
             else:
-                # Get a new target.
-                target = self.creep.pos.findClosestByRange(FIND_MY_STRUCTURES,
-                                                           {"filter": lambda s:
-                                                            ((s.structureType == STRUCTURE_SPAWN
-                                                             or s.structureType == STRUCTURE_EXTENSION)
-                                                             and s.energy < s.energyCapacity)})
+                target = self.get_target("spawnstension")
                 if target:
                     self.creep.memory.target = target.id
             # We need to be directly next to spawn or extension to transfer nrg.
