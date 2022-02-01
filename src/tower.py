@@ -17,5 +17,10 @@ class Tower:
     def run_tower(self):
         if len(self.tower.room.find(FIND_HOSTILE_CREEPS)) != 0:
             target = self.tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-            result = self.tower.attack(target)
-            console.log(JSON.stringify(result))
+            self.tower.attack(target)
+        wounded_creeps = self.tower.room.find(FIND_MY_CREEPS,
+                                              {"filter": lambda s:
+                                               s.hits/s.hitsMax <= 0.55})
+        if len(wounded_creeps) > 0:
+            for creep in wounded_creeps:
+                self.tower.heal(creep)
