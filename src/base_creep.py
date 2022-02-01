@@ -32,10 +32,11 @@ class BaseCreep:
 
     def get_source(self, type):
         if type == 'container':
-            # Get location of closest dropped resources.
+            # Get location of closest container resources.
             source = self.creep.pos.findClosestByRange(FIND_STRUCTURES,
                                                        {"filter": lambda s:
-                                                        s.structureType == STRUCTURE_CONTAINER})
+                                                        (s.structureType == STRUCTURE_CONTAINER
+                                                         and s.store.getUsedCapacity() >= 300)})
             '''TODO Make it so collectors find the largest amount of dropped resources first.'''
             return source
         elif type == "dropped":
