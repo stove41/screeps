@@ -25,7 +25,7 @@ __pragma__('noalias', 'update')
 
 roles = ["collector", "builder", "defender", "harvester", "upgrader"]
 role_counts = {"collector": 2,
-               "builder": 1,
+               "builder": 2,
                "defender": 1,
                "harvester": 2,
                "upgrader": 1}
