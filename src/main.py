@@ -29,14 +29,12 @@ role_counts = {"collector": 2,
                "defender": 1,
                "harvester": 2,
                "upgrader": 1}
-last_idx = 1
 
 
 def main():
     """
     Main game logic loop.
     """
-    global last_idx
     # Run each creep
     for name in Object.keys(Game.creeps):
         creep = Game.creeps[name]
@@ -67,7 +65,7 @@ def main():
                 num_creeps = _.sum(Game.creeps,
                                    lambda c: c.pos.roomName == spawn.pos.roomName and c.memory.role == role)
                 # Instantiate spawner object.
-                spawner = CreepSpawner(spawn, num_creeps, role, last_idx)
+                spawner = CreepSpawner(spawn, num_creeps, role)
                 if role == "harvester":
                     if num_creeps < role_counts[role] and spawn.room.energyAvailable > 250:
                         body = spawner.build_harvester()

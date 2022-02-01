@@ -16,27 +16,26 @@ class CreepSpawner:
         num_creeps: the number of <role> creeps present in the room.
         role: The current role.
         last_source_idx: The index of the last source a harvester was sent to."""
-    def __init__(self, spawn, num_creeps, role, last_source_idx):
+    def __init__(self, spawn, num_creeps, role):
         self.spawn = spawn
         self.num_creeps = num_creeps
         self.role = role
-        self.last_source_idx = last_source_idx
 
     def get_source(self):
         """Method to find all sources in a room and assign the correct one to the currently spawning harvester."""
         sources = self.spawn.room.find(FIND_SOURCES)
         if self.num_creeps == 0:
             source = sources[0]
-            self.last_source_idx = 0
-            return source.id, self.last_source_idx
-        elif self.num_creeps != 0 and self.last_source_idx == 0:
+            self.spawn.memory.last_idx = 0
+            return source.id, self.spawn.memory.last_idx
+        elif self.num_creeps != 0 and self.spawn.memory.last_idx == 0:
             source = sources[1]
-            self.last_source_idx = 1
-            return source.id, self.last_source_idx
-        elif self.num_creeps != 0 and self.last_source_idx == 1:
+            self.spawn.memory.last_idx = 1
+            return source.id, self.spawn.memory.last_idx
+        elif self.num_creeps != 0 and self.spawn.memory.last_idx == 1:
             source = sources[0]
-            self.last_source_idx = 0
-            return source.id, self.last_source_idx
+            self.spawn.memory.last_idx = 0
+            return source.id, self.spawn.memory.last_idx
 
     @staticmethod
     def get_part_cost(parts):
@@ -110,6 +109,7 @@ class CreepSpawner:
 
     def spawn_harvesters(self, body):
         source, idx = self.get_source()
+        self.spawn.memory.last_idx = idx
         self.spawn.spawnCreep(body, "{}-{}".format(self.role, Game.time),
                               {'memory': {'role': self.role, 'source': source}})
         return idx
