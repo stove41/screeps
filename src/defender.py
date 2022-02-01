@@ -29,7 +29,7 @@ class Defender:
             home = Game.getObjectById(self.creep.memory.home)
             if self.creep.pos.isNearTo(home):
                 del self.creep.memory.home
-            self.creep.moveTo(home, {"visualizePathStyle": {"stroke": '#7bf600'}})
+            self.creep.moveTo(18, 15, {"visualizePathStyle": {"stroke": '#7bf600'}})
         else:
             if not self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) > 0:
                 target = self.creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
