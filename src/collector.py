@@ -13,8 +13,7 @@ __pragma__('noalias', 'update')
 
 class Collector(BaseCreep):
     def __init__(self, creep):
-        BaseCreep.__init__(self)
-        self.creep = creep
+        BaseCreep.__init__(self, creep)
 
     def run_collector(self):
         """
