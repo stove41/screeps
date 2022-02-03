@@ -19,13 +19,13 @@ class Defender:
             target = self.creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
             self.creep.memory.target = target.id
             self.creep.memory.attacking = True
+        elif self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) == 0:
+            self.creep.memory.attacking = False
+            del self.creep.memory.target
         elif self.creep.memory.attacking and self.creep.memory.target:
             target = Game.getObjectById(self.creep.memory.target)
             if self.creep.attack(target) == ERR_NOT_IN_RANGE:
                 self.creep.moveTo(target, {"visualizePathStyle": {"stroke": '#7bf600'}})
-        elif self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) == 0:
-            self.creep.memory.attacking = False
-            del self.creep.memory.target
         elif not self.creep.memory.attacking and len(self.creep.room.find(FIND_HOSTILE_CREEPS)) == 0:
             self.creep.moveTo(18, 14, {"visualizePathStyle": {"stroke": '#7bf600'}})
 
