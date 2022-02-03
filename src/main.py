@@ -4,7 +4,6 @@ from defender import Defender
 from harvester_new import HarvesterNew
 from upgrader import Upgrader
 from creep_spawner import CreepSpawner
-import time
 from tower import Tower
 # defs is a package which claims to export all constants and some JavaScript objects, but in reality does
 #  nothing. This is useful mainly when using an editor like PyCharm, so that it 'knows' that things like Object, Creep,
